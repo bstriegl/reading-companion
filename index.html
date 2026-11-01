@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reading">
+<title>Reading Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f6f2; --surface:#ffffff; --surface2:#f0eee8; --text:#1f1f22; --muted:#6c6b70; --border:#dedbd3;
+  --accent:#2f5d8a; --on-accent:#ffffff; --danger:#b3261e;
+  --word:#ffe27a; --phrase:#b9e6bd; --name:#c3d9fb; --pending:#ffc999; --hover:#ebe8df;
+  --fs:19px; --lh:1.8;
+  color-scheme:light;
+}
+:root[data-theme="sepia"]{
+  --bg:#f3ead6; --surface:#fbf5e7; --surface2:#ece1c8; --text:#3a2f22; --muted:#7a6a55; --border:#dccdb0;
+  --accent:#7a4d1f; --hover:#e8dcc2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme]){
+    --bg:#16171a; --surface:#202226; --surface2:#2a2c31; --text:#e7e5e1; --muted:#9b9aa1; --border:#363840;
+    --accent:#86b4e3; --on-accent:#10161d; --danger:#f2867d;
+    --word:#6a5713; --phrase:#245c30; --name:#284a7a; --pending:#7d4b1d; --hover:#2c2e34;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16171a; --surface:#202226; --surface2:#2a2c31; --text:#e7e5e1; --muted:#9b9aa1; --border:#363840;
+  --accent:#86b4e3; --on-accent:#10161d; --danger:#f2867d;
+  --word:#6a5713; --phrase:#245c30; --name:#284a7a; --pending:#7d4b1d; --hover:#2c2e34;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3{margin:0}
+.muted{color:var(--muted)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.danger{color:var(--danger)}
+.btn.small{min-height:36px;padding:0 12px;font-size:14px}
+.btn[disabled]{opacity:.55;cursor:default}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;height:44px;padding:0 10px;border-radius:10px;border:0;background:transparent;cursor:pointer;font-size:15px}
+.icon-btn:hover{background:var(--hover)}
+.grow{flex:1}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--border)}
+.bar-title{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.count-pill{display:inline-block;min-width:22px;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:13px;font-weight:600;text-align:center}
+
+/* views */
+body[data-view="library"] #reader-view, body[data-view="library"] #reader-bar{display:none}
+body[data-view="reader"] #library-view{display:none}
+
+/* library */
+.lib{max-width:760px;margin:0 auto;padding:28px 16px 80px}
+.lib-head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.lib-head h1{font-family:"Literata",Georgia,serif;font-weight:600;font-size:30px;flex:1}
+.lib-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tcard{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px 8px 6px 6px;margin-bottom:10px}
+.tcard-main{flex:1;min-width:0;text-align:left;background:none;border:0;padding:10px 12px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.tcard-main:hover{background:var(--hover)}
+.tc-title{font-weight:600;font-size:17px}
+.tc-meta{color:var(--muted);font-size:14px}
+.tc-actions{display:flex;gap:4px}
+.empty{background:var(--surface);border:1px dashed var(--border);border-radius:14px;padding:28px 20px;text-align:center}
+.empty p{margin:0 0 10px}
+.how{margin-top:34px;color:var(--muted);font-size:15px}
+.how h2{font-size:15px;color:var(--text);margin-bottom:8px}
+.how ol{margin:0;padding-left:20px}
+.how li{margin-bottom:6px}
+.legend{display:inline-flex;align-items:center;gap:6px;margin-right:14px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--m)}
+
+/* reader */
+main#reader-view{transition:margin-right .2s ease}
+#text{font-family:"Literata",Georgia,"Times New Roman",serif;font-size:var(--fs);line-height:var(--lh);max-width:calc(64ch + 3.2em);margin:0 auto;padding:24px 16px 45vh 4px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.doc-head{max-width:calc(64ch + 3.2em);margin:0 auto;padding:28px 16px 0 calc(2.6em + 4px);font-family:"Literata",Georgia,serif;font-size:var(--fs)}
+.doc-head h1{font-size:1.45em;font-weight:600;line-height:1.25}
+.doc-head .src{color:var(--muted);font-size:.8em;margin-top:4px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.para{margin-bottom:.85em}
+.line{display:flex}
+.ln{flex:0 0 2.6em;text-align:right;padding-right:.9em;color:var(--muted);font-size:.68em;line-height:calc(var(--lh) / .68);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.lt{flex:1;min-width:0}
+.t{cursor:pointer;border-radius:3px;padding:.06em 0;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+@media (hover:hover){.t:not(.mk):not(.pend):hover{background:var(--hover)}}
+.mk{background:var(--m)}
+.m-word{--m:var(--word)} .m-phrase{--m:var(--phrase)} .m-name{--m:var(--name)}
+.t.mk{border-radius:0}
+.t.ms{border-top-left-radius:4px;border-bottom-left-radius:4px}
+.t.me{border-top-right-radius:4px;border-bottom-right-radius:4px}
+.pend{background:var(--pending)}
+.t.pend{border-radius:4px}
+.t.teach{text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:.2em}
+.t.active{box-shadow:inset 0 -2px 0 var(--accent)}
+
+/* bottom sheet */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;max-width:640px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.16);max-height:72vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:14px 16px calc(16px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .22s ease, right .2s ease;visibility:hidden}
+.sheet.open{transform:none;visibility:visible}
+.sh-head{display:flex;align-items:flex-start;gap:8px}
+.sh-term{font-family:"Literata",Georgia,serif;font-size:22px;font-weight:600;line-height:1.25;word-break:break-word}
+.sh-meta{color:var(--muted);font-size:14px;margin-top:2px}
+.hint{margin:10px 0 0;font-size:14px;color:var(--muted);background:var(--surface2);border-radius:10px;padding:8px 12px}
+.seg{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.seg button{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:14px}
+.seg button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:600}
+.sec{margin-top:14px}
+.sec-t{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips .btn{min-height:38px;font-size:14px;padding:0 12px}
+textarea,input[type=text],input[type=password],select{width:100%;border:1px solid var(--border);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:16px}
+textarea{resize:vertical}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+#f-paste{min-height:44px;height:44px;font-size:15px}
+.frow{display:flex;gap:6px;align-items:stretch}
+.frow.mt{margin-top:8px}
+.frow > input,.frow > textarea{flex:1;min-width:0}
+.btn.paste{min-height:44px;padding:0 12px;font-size:14px;align-self:flex-start}
+.fld{display:grid;gap:4px}
+.fld > label{font-size:13px;font-weight:600;color:var(--muted)}
+details > summary{cursor:pointer;color:var(--accent);font-size:14px;min-height:40px;display:flex;align-items:center;list-style:none}
+details > summary::-webkit-details-marker{display:none}
+details > summary::before{content:"▸";margin-right:8px;transition:transform .15s}
+details[open] > summary::before{transform:rotate(90deg)}
+details > .fields{margin-top:4px}
+.seen{box-shadow:inset 0 -3px 0 var(--m)}
+.tip{display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border-radius:12px;padding:12px 8px 12px 14px;margin-bottom:16px;font-size:15px}
+.tip p{margin:0;flex:1}
+.fields{display:grid;gap:10px;margin-top:14px}
+.fields label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+.fields input,.fields textarea{font-weight:400;color:var(--text)}
+.sh-foot{display:flex;gap:8px;margin-top:16px;align-items:center}
+
+/* word list panel */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:45;display:none}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(360px,92vw);background:var(--surface);border-left:1px solid var(--border);z-index:50;transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);visibility:hidden}
+body.panel-open .panel{transform:none;visibility:visible}
+body.panel-open .backdrop{display:block}
+.pn-head{display:flex;align-items:center;gap:8px;padding:12px 12px 8px 18px}
+.pn-head h2{flex:1;font-size:18px}
+.filters{display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap}
+.filters button{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.wl{list-style:none;margin:0;padding:0 8px;overflow:auto;flex:1;-webkit-overflow-scrolling:touch}
+.wl-item{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:10px;cursor:pointer}
+.wl-item:hover{background:var(--hover)}
+.dot{flex:0 0 12px;height:12px;border-radius:4px;background:var(--m);margin-top:5px}
+.wl-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.wl-term{font-weight:600}
+.wl-de{font-size:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wl-line{font-size:13px;color:var(--muted);white-space:nowrap;margin-top:2px}
+.wl-empty{padding:16px 10px;color:var(--muted)}
+.pn-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border);display:flex}
+.pn-foot .btn{flex:1}
+@media (min-width:1100px){
+  .backdrop{display:none !important}
+  .panel{z-index:30}
+  body.panel-open main#reader-view, body.panel-open .bar{margin-right:360px}
+  body.panel-open .sheet{right:360px}
+}
+
+/* dialogs */
+dialog{border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--text);padding:0;width:min(660px,calc(100vw - 24px));max-height:calc(100vh - 32px);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.dlg{padding:20px}
+.dlg h2{font-size:20px;margin-bottom:4px}
+.dlg .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.form{display:grid;gap:12px}
+.form label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+.form label > *{font-weight:400;color:var(--text)}
+#n-text{min-height:240px;font-family:"Literata",Georgia,serif;font-size:15px;line-height:1.55}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note{font-size:13px;color:var(--muted);margin:0}
+.group{border-top:1px solid var(--border);padding-top:16px;margin-top:16px}
+.group h3{font-size:15px;margin-bottom:10px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.check{display:flex !important;align-items:center;gap:10px;font-size:15px !important;font-weight:400 !important;color:var(--text) !important;min-height:36px}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.exp{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--surface);cursor:pointer}
+.exp:hover{background:var(--hover)}
+.exp b{font-size:15px}
+.exp span{font-size:13px;color:var(--muted)}
+
+/* toast */
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translate(-50%,-20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* print */
+#print{display:none}
+@media print{
+  body > *:not(#print){display:none !important}
+  body{background:#fff;color:#000}
+  #print{display:block;font-family:Georgia,"Times New Roman",serif;font-size:11pt;color:#000}
+  #print *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print h1{font-size:17pt;margin:0 0 2pt}
+  #print .p-src{color:#555;font-size:9.5pt;margin-bottom:12pt}
+  #print table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #print th,#print td{border:1px solid #bbb;padding:4pt 5pt;vertical-align:top;text-align:left}
+  #print th{background:#e8eef5}
+  #print tr{page-break-inside:avoid}
+  #print .p-line{display:flex;line-height:1.65}
+  #print .p-ln{flex:0 0 26pt;text-align:right;padding-right:8pt;color:#777;font-size:8pt;line-height:2.1;font-family:Arial,sans-serif}
+  #print .p-para{margin-bottom:6pt}
+  #print .mk{background:var(--m)}
+  #print .m-word{--m:#ffe27a} #print .m-phrase{--m:#b9e6bd} #print .m-name{--m:#c3d9fb}
+  #print sup{font-size:7pt;font-family:Arial,sans-serif;color:#333}
+  #print h2{font-size:13pt;margin:18pt 0 6pt;page-break-after:avoid}
+  @page{margin:16mm}
+}
+</style>
+</head>
+<body data-view="library">
+
+<!-- ============ LIBRARY ============ -->
+<div id="library-view">
+  <header class="bar">
+    <span class="bar-title">Reading Companion</span>
+    <button class="icon-btn" data-act="settings" aria-label="Settings">⚙︎ Settings</button>
+  </header>
+  <div class="lib">
+    <div class="lib-head">
+      <h1>My texts</h1>
+      <div class="lib-actions">
+        <button class="btn" data-act="import" title="PDF or a text file from your teacher">Open PDF or file…</button>
+        <button class="btn primary" data-act="new">+ New text</button>
+      </div>
+    </div>
+    <div class="tip" id="ios-tip" hidden>
+      <p><b>Tip:</b> In Safari, tap the Share icon and choose <b>“Add to Home Screen”</b>. The app then opens like a normal app. Please always use the same way to open it – texts saved in Safari and in the home screen app are kept separately.</p>
+      <button class="icon-btn" data-act="tip-close" aria-label="Close tip">✕</button>
+    </div>
+    <div id="lib-list"></div>
+    <section class="how">
+      <h2>How it works</h2>
+      <ol>
+        <li>Paste a text or open a PDF. Your teacher may also give you a text file to open.</li>
+        <li>Tap a word you don't know. Tap another word in the same sentence to mark a whole phrase.</li>
+        <li>Look it up in a dictionary or ask an AI. Save the meaning – the word stays marked.</li>
+        <li>Open <b>My words</b> to see everything you marked and export it for Quizlet, Anki, Word or as a PDF.</li>
+      </ol>
+      <p style="margin-top:12px">
+        <span class="legend"><span class="sw m-word"></span>word</span>
+        <span class="legend"><span class="sw m-phrase"></span>phrase / idiom</span>
+        <span class="legend"><span class="sw m-name"></span>name / cultural reference</span>
+      </p>
+      <p class="note" style="margin-top:10px">Everything is stored only on this device. Nothing is sent anywhere unless you use the AI connection in the settings.</p>
+    </section>
+  </div>
+</div>
+
+<!-- ============ READER ============ -->
+<header class="bar" id="reader-bar">
+  <button class="icon-btn" data-act="library" aria-label="Back to my texts">‹ My texts</button>
+  <span class="bar-title" id="r-title"></span>
+  <button class="icon-btn" data-act="settings" aria-label="Display settings">Aa</button>
+  <button class="icon-btn" data-act="panel" aria-label="My words">My words&nbsp;<span class="count-pill" id="count">0</span></button>
+</header>
+<main id="reader-view">
+  <div class="doc-head"><h1 id="d-title"></h1><div class="src" id="d-src"></div></div>
+  <article id="text" aria-label="Text"></article>
+</main>
+
+<div class="backdrop" data-act="panel-close"></div>
+<aside class="panel" aria-label="My words">
+  <div class="pn-head"><h2>My words</h2><button class="icon-btn" data-act="panel-close" aria-label="Close">✕</button></div>
+  <div class="filters" id="filters">
+    <button data-filter="all" aria-pressed="true">All</button>
+    <button data-filter="word"><span class="sw m-word"></span>Words</button>
+    <button data-filter="phrase"><span class="sw m-phrase"></span>Phrases</button>
+    <button data-filter="name"><span class="sw m-name"></span>Names</button>
+  </div>
+  <ol class="wl" id="wl"></ol>
+  <div class="pn-foot"><button class="btn primary" data-act="export">Export…</button></div>
+</aside>
+
+<section class="sheet" id="sheet" aria-live="polite"></section>
+
+<!-- ============ DIALOGS ============ -->
+<dialog id="dlg-new">
+  <div class="dlg">
+    <h2>New text</h2>
+    <p class="sub">Paste a text or open a PDF. Leave an empty line between paragraphs.</p>
+    <div class="form">
+      <label>Title<input type="text" id="n-title" placeholder="e.g. The Last Bookshop"></label>
+      <label>Source (optional)<input type="text" id="n-src" placeholder="e.g. The Guardian, 12 March 2026"></label>
+      <div class="row"><button class="btn" data-act="pdf">Open PDF…</button><span class="note" id="n-pdf-status"></span></div>
+      <label>Text<textarea id="n-text" placeholder="Paste your text here…"></textarea></label>
+      <p class="note">Please check the text after opening a PDF: remove headers, footnotes or page numbers.</p>
+    </div>
+    <div class="dlg-foot"><button class="btn" data-close>Cancel</button><button class="btn primary" data-act="create">Start reading</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-settings">
+  <div class="dlg">
+    <h2>Settings</h2>
+    <div class="form">
+      <label>Text size <input type="range" id="s-fs" min="15" max="28" step="1"></label>
+      <label>Line spacing <input type="range" id="s-lh" min="1.4" max="2.4" step="0.1"></label>
+      <div>
+        <div class="sec-t">Colours</div>
+        <div class="seg" id="s-theme" style="margin-top:0">
+          <button data-theme="auto">Automatic</button><button data-theme="light">Light</button><button data-theme="sepia">Sepia</button><button data-theme="dark">Dark</button>
+        </div>
+      </div>
+    </div>
+    <div class="group">
+      <h3>AI</h3>
+      <p class="note" style="margin-bottom:10px">“Copy AI question” copies a ready-made question about the marked expression and its sentence. Choose your AI app to open it at the same time.</p>
+      <div class="form">
+        <label>My AI app
+          <select id="s-app">
+            <option value="none">Just copy the question</option>
+            <option value="chatgpt">ChatGPT</option>
+            <option value="claude">Claude</option>
+            <option value="gemini">Gemini</option>
+            <option value="copilot">Microsoft Copilot</option>
+            <option value="custom">Other (web address)</option>
+          </select>
+        </label>
+        <label id="s-url-wrap">Web address of the AI app<input type="text" id="s-url" inputmode="url" placeholder="https://…"></label>
+      </div>
+      <p class="note" style="margin:16px 0 10px">Optional: with your own API key, explanations appear directly in the app. Only the marked expression and its sentence are sent. The key is stored on this device only.</p>
+      <div class="form">
+        <label>Direct connection
+          <select id="s-provider">
+            <option value="none">No connection – copy &amp; paste</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (ChatGPT)</option>
+            <option value="gemini">Google (Gemini)</option>
+          </select>
+        </label>
+        <label class="ai-only">API key<input type="password" id="s-key" autocomplete="off" placeholder="Paste your key"></label>
+        <label class="ai-only">Model<input type="text" id="s-model"></label>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Backup</h3>
+      <p class="note" style="margin-bottom:10px">Save all your texts and words in one file, e.g. to move them to another device.</p>
+      <div class="row"><button class="btn" data-act="backup">Save backup</button><button class="btn" data-act="import">Restore from file…</button></div>
+    </div>
+    <div class="dlg-foot"><button class="btn primary" data-close>Done</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-export">
+  <div class="dlg">
+    <h2>Export my words</h2>
+    <p class="sub" id="e-sub"></p>
+    <div class="row" style="margin-bottom:14px">
+      <label class="check"><input type="checkbox" value="word" checked> Words</label>
+      <label class="check"><input type="checkbox" value="phrase" checked> Phrases</label>
+      <label class="check"><input type="checkbox" value="name" checked> Names</label>
+    </div>
+    <div class="exp-grid">
+      <button class="exp" data-exp="quizlet-copy"><b>Copy for Quizlet</b><span>Paste into Quizlet → Create → Import</span></button>
+      <button class="exp" data-exp="quizlet"><b>Quizlet file (.txt)</b><span>Term and meaning, tab-separated</span></button>
+      <button class="exp" data-exp="anki"><b>Anki file (.csv)</b><span>With context sentence and line</span></button>
+      <button class="exp" data-exp="docx"><b>Word document (.docx)</b><span>Vocabulary table to edit or print</span></button>
+      <button class="exp" data-exp="print-list"><b>Word list as PDF</b><span>Opens the print dialog – choose “Save as PDF”</span></button>
+      <button class="exp" data-exp="print-text"><b>Annotated text as PDF</b><span>The text with your marks plus a glossary</span></button>
+    </div>
+    <div class="dlg-foot"><button class="btn" data-close>Close</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-share">
+  <div class="dlg">
+    <h2>Share as text file</h2>
+    <p class="sub">Creates a file that others can open with “Open file…” in this app – useful for teachers handing out texts.</p>
+    <label class="check"><input type="checkbox" id="sh-entries"> Include my marked expressions and explanations</label>
+    <p class="note">Shared explanations appear with a dotted underline and the note “from your teacher”.</p>
+    <div class="dlg-foot"><button class="btn" data-close>Cancel</button><button class="btn primary" data-act="share-go">Save file</button></div>
+  </div>
+</dialog>
+
+<input type="file" id="file-import" hidden>
+<input type="file" id="file-pdf" accept="application/pdf,.pdf" hidden>
+<div class="toast" id="toast" role="status"></div>
+<div id="print"></div>
+
+<script>
+'use strict';
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const JSZIP = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+const LINE_CHARS = 62;   // fixed line length so line numbers are the same on every device
+const MAX_WORDS = 6;     // no whole sentences
+const MODELS = {anthropic:'claude-haiku-5-5', openai:'gpt-4o-mini', gemini:'gemini-2.0-flash'};
+const CATS = {word:'Word', phrase:'Phrase / idiom', name:'Name / reference'};
+const DEFAULTS = {fontSize:19, lineHeight:1.8, theme:'auto', provider:'none', apiKey:'', model:'', aiApp:'none', aiUrl:''};
+const AI_APPS = {chatgpt:['ChatGPT', 'https://chatgpt.com/'], claude:['Claude', 'https://claude.ai/new'], gemini:['Gemini', 'https://gemini.google.com/app'], copilot:['Copilot', 'https://copilot.microsoft.com/']};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ toast('Could not save – storage is full or blocked.'); return false; } }
+};
+
+let texts = store.get('rc.texts', []);
+let settings = Object.assign({}, DEFAULTS, store.get('rc.settings', {}));
+let cur = null, model = null, draft = null, filter = 'all';
+let tokEls = [], spEls = {}, tokenEntry = [], seenOf = [];
+
+// a teacher can preset the AI app in the link, e.g. reading-companion.html?ai=chatgpt (or ?ai=custom&aiurl=https://…)
+(() => {
+  const q = new URLSearchParams(location.search), a = q.get('ai');
+  if (a && settings.aiApp === 'none' && (AI_APPS[a] || a === 'custom')){
+    settings.aiApp = a;
+    if (a === 'custom') settings.aiUrl = q.get('aiurl') || '';
+  }
+})();
+function aiApp(){
+  if (settings.aiApp === 'custom') return /^https:\/\//.test(settings.aiUrl) ? {name: 'your AI', url: settings.aiUrl} : null;
+  const a = AI_APPS[settings.aiApp];
+  return a ? {name: a[0], url: a[1]} : null;
+}
+const saveTexts = () => store.set('rc.texts', texts);
+const saveSettings = () => store.set('rc.settings', settings);
+
+/* ---------------- helpers ---------------- */
+let toastTimer;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+const loaded = {};
+function loadScript(src){
+  return loaded[src] || (loaded[src] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.onload = res;
+    s.onerror = () => { delete loaded[src]; rej(new Error('Could not load a component – are you online?')); };
+    document.head.appendChild(s);
+  }));
+}
+function download(name, data, type){
+  const blob = data instanceof Blob ? data : new Blob([data], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+const slug = s => (s || 'text').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 50) || 'text';
+const fmtDate = ts => new Date(ts).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+const clean = s => String(s || '').replace(/\s+/g, ' ').trim();
+async function copyText(s){
+  try { await navigator.clipboard.writeText(s); return true; }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch(_){}
+    ta.remove(); return ok;
+  }
+}
+
+/* ---------------- text model ---------------- */
+function isSentenceEnd(w){
+  const core = w.replace(/["'”’)\]»]+$/, '');
+  if (!/[.!?…]$/.test(core)) return false;
+  if (/^(Mr|Mrs|Ms|Dr|St|Prof|Jr|Sr|vs|etc|e\.g|i\.e|No|Mt|Gen|Col|Sgt|Lt)\.$/i.test(core.replace(/^["'“‘(]+/, ''))) return false;
+  if (/^[A-Z]\.$/.test(core)) return false; // initials like J.
+  return true;
+}
+function buildModel(t){
+  const tokens = [], sentOf = [], lineOf = [], paras = [];
+  let sent = 0, line = 0;
+  t.paragraphs.forEach(p => {
+    const words = p.split(/\s+/).filter(Boolean);
+    const lines = []; let cl = [], len = 0;
+    words.forEach(w => {
+      const i = tokens.length; tokens.push(w);
+      if (cl.length && len + 1 + w.length > LINE_CHARS){ lines.push(cl); cl = []; len = 0; }
+      len += (cl.length ? 1 : 0) + w.length; cl.push(i);
+      sentOf.push(sent);
+      if (isSentenceEnd(w)) sent++;
+    });
+    if (cl.length) lines.push(cl);
+    sent++;
+    lines.forEach(l => { line++; l.forEach(i => lineOf[i] = line); });
+    paras.push(lines);
+  });
+  return {tokens, sentOf, lineOf, paras, norm: tokens.map(normTok)};
+}
+const normTok = w => w.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+function termText(s, e){
+  return model.tokens.slice(s, e + 1).join(' ')
+    .replace(/^[^\p{L}\p{N}]+/u, '').replace(/[^\p{L}\p{N}]+$/u, '');
+}
+function contextOf(s){
+  const so = model.sentOf; let a = s, b = s;
+  while (a > 0 && so[a - 1] === so[s]) a--;
+  while (b < so.length - 1 && so[b + 1] === so[s]) b++;
+  return model.tokens.slice(a, b + 1).join(' ');
+}
+function guessCat(s, e){
+  const words = model.tokens.slice(s, e + 1).map(w => w.replace(/^[^\p{L}\p{N}]+/u, ''));
+  const midSentence = s > 0 && model.sentOf[s - 1] === model.sentOf[s];
+  const caps = words.every(w => /^\p{Lu}/u.test(w) && w !== 'I');
+  if (caps && (midSentence || words.length > 1)) return 'name';
+  return s === e ? 'word' : 'phrase';
+}
+function toParagraphs(raw){
+  const t = raw.replace(/\r\n?/g, '\n').replace(/­/g, '').replace(/[ \t]+\n/g, '\n').trim();
+  const blocks = /\n\s*\n/.test(t) ? t.split(/\n\s*\n+/) : t.split('\n');
+  return blocks.map(b => b.replace(/(\p{L})-\n(\p{Ll})/gu, '$1$2').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
+
+/* ---------------- library ---------------- */
+function renderLibrary(){
+  const el = $('#lib-list');
+  if (!texts.length){
+    el.innerHTML = `<div class="empty"><p><b>No texts yet.</b></p><p class="muted">Paste a text or open a PDF to start reading – or try a short sample text first.</p><button class="btn" data-act="sample">Try a sample text</button></div>`;
+    return;
+  }
+  el.innerHTML = texts.slice().sort((a, b) => (b.opened || b.created) - (a.opened || a.created)).map(t => `
+    <article class="tcard" data-id="${t.id}">
+      <button class="tcard-main" data-act="open">
+        <span class="tc-title">${esc(t.title)}</span>
+        <span class="tc-meta">${t.source ? esc(t.source) + ' · ' : ''}${t.entries.length} marked · ${fmtDate(t.created)}</span>
+      </button>
+      <div class="tc-actions">
+        <button class="btn small ghost" data-act="share" title="Share as file">Share</button>
+        <button class="btn small ghost danger" data-act="delete" title="Delete">Delete</button>
+      </div>
+    </article>`).join('');
+}
+function showLibrary(){
+  if (cur) flush();
+  closeSheet(); document.body.classList.remove('panel-open');
+  cur = null; model = null;
+  document.body.dataset.view = 'library';
+  store.set('rc.last', null);
+  renderLibrary(); window.scrollTo(0, 0);
+}
+function addText(title, source, paragraphs, entries){
+  const t = {id: uid(), title: title || 'Untitled text', source: source || '', paragraphs, entries: entries || [], created: Date.now()};
+  texts.push(t); saveTexts(); return t;
+}
+function openText(id){
+  cur = texts.find(t => t.id === id);
+  if (!cur) return showLibrary();
+  cur.opened = Date.now(); saveTexts();
+  model = buildModel(cur); draft = null;
+  document.body.dataset.view = 'reader';
+  $('#r-title').textContent = cur.title;
+  $('#d-title').textContent = cur.title;
+  $('#d-src').textContent = cur.source || '';
+  renderText(); renderList(); closeSheet();
+  store.set('rc.last', id); window.scrollTo(0, 0);
+}
+
+/* ---------------- reader ---------------- */
+function renderText(){
+  let h = '';
+  model.paras.forEach(lines => {
+    h += '<div class="para">';
+    lines.forEach(l => {
+      const n = model.lineOf[l[0]];
+      h += `<div class="line"><span class="ln">${n % 5 === 0 ? n : ''}</span><span class="lt">`;
+      l.forEach((i, k) => {
+        if (k) h += `<span class="sp" data-a="${i - 1}"> </span>`;
+        h += `<span class="t" data-i="${i}">${esc(model.tokens[i])}</span>`;
+      });
+      h += '</span></div>';
+    });
+    h += '</div>';
+  });
+  $('#text').innerHTML = h;
+  tokEls = $$('#text .t');
+  spEls = {}; $$('#text .sp').forEach(e => spEls[e.dataset.a] = e);
+  applyMarks();
+}
+function markRange(s, e, classes){
+  for (let i = s; i <= e; i++){
+    tokEls[i].classList.add(...classes);
+    if (i < e && spEls[i]) spEls[i].classList.add(...classes);
+  }
+}
+function applyMarks(){
+  const n = model.tokens.length;
+  tokenEntry = new Array(n).fill(null); seenOf = new Array(n).fill(null);
+  tokEls.forEach(e => e.className = 't');
+  Object.values(spEls).forEach(e => e.className = 'sp');
+  cur.entries.forEach(en => { for (let i = en.start; i <= en.end; i++) tokenEntry[i] = en.id; });
+  cur.entries.forEach(en => {
+    markRange(en.start, en.end, ['mk', 'm-' + en.cat].concat(en.teacher ? ['teach'] : []));
+    tokEls[en.start].classList.add('ms'); tokEls[en.end].classList.add('me');
+  });
+  // other occurrences of something already looked up
+  cur.entries.forEach(en => {
+    const seq = model.norm.slice(en.start, en.end + 1), L = seq.length;
+    if (!seq.join('')) return;
+    for (let i = 0; i + L <= n; i++){
+      let ok = model.sentOf[i] === model.sentOf[i + L - 1];
+      for (let k = 0; k < L && ok; k++) ok = model.norm[i + k] === seq[k] && !tokenEntry[i + k] && !seenOf[i + k];
+      if (!ok) continue;
+      for (let k = 0; k < L; k++) seenOf[i + k] = {id: en.id, start: i, end: i + L - 1};
+      markRange(i, i + L - 1, ['seen', 'm-' + en.cat]);
+    }
+  });
+  if (draft){
+    if (draft.id){ for (let i = draft.start; i <= draft.end; i++) tokEls[i].classList.add('active'); }
+    else markRange(draft.start, draft.end, ['pend']);
+  }
+}
+function checkRange(s, e){
+  if (e - s + 1 > MAX_WORDS) return `Phrases can be up to ${MAX_WORDS} words long.`;
+  if (model.sentOf[s] !== model.sentOf[e]) return 'Please stay within one sentence.';
+  for (let i = s; i <= e; i++) if (tokenEntry[i]) return 'That would overlap with something you already marked.';
+  return null;
+}
+function onTap(i){
+  const eid = tokenEntry[i];
+  if (eid){ openEntry(eid); return; }
+  if (draft && !draft.id && !draft.copiedFrom){
+    const s = Math.min(draft.start, i), e = Math.max(draft.end, i);
+    const sameSentence = model.sentOf[s] === model.sentOf[e];
+    if (i >= draft.start && i <= draft.end){
+      if (draft.start === draft.end) return;
+      draft.start = draft.end = i;
+    }
+    else if (sameSentence && !checkRange(s, e)){ draft.start = s; draft.end = e; }
+    else if (sameSentence && e - s + 1 > MAX_WORDS && !hasContent(draft)){ toast(`Phrases can be up to ${MAX_WORDS} words long.`); return; }
+    else return startDraft(i);
+    if (!draft.catTouched) draft.cat = guessCat(draft.start, draft.end);
+    applyMarks(); renderSheet(); reveal(draft.start);
+    return;
+  }
+  startDraft(i);
+}
+function startDraft(i){
+  flush();
+  const seen = seenOf[i], en = seen && cur.entries.find(e => e.id === seen.id);
+  draft = en
+    ? {start: seen.start, end: seen.end, cat: en.cat, base: en.base, de: en.de, en: en.en, note: '', copiedFrom: en.line}
+    : {start: i, end: i, cat: guessCat(i, i), base: '', de: '', en: '', note: ''};
+  applyMarks(); renderSheet(); reveal(draft.start);
+}
+function openEntry(id){
+  const en = cur.entries.find(e => e.id === id); if (!en) return;
+  if (draft && draft.id !== id) flush();
+  draft = Object.assign({}, en);
+  applyMarks(); renderSheet(); reveal(en.start);
+}
+function reveal(i){
+  requestAnimationFrame(() => {
+    const el = tokEls[i]; if (!el) return;
+    const r = el.getBoundingClientRect();
+    const sheet = $('#sheet');
+    const limit = sheet.classList.contains('open') ? innerHeight - sheet.offsetHeight - 24 : innerHeight - 24;
+    if (r.bottom > limit || r.top < 80) window.scrollBy({top: r.top - Math.max(90, Math.min(160, limit / 3)), behavior: 'smooth'});
+  });
+}
+
+/* ---------------- bottom sheet ---------------- */
+function lookupLinks(d){
+  const q = (d.base || termText(d.start, d.end)).replace(/\s*\(.*?\)\s*/g, ' ').replace(/\b(sth|sb|something|somebody|someone)\b\.?/gi, '').replace(/\s+/g, ' ').trim()
+    || termText(d.start, d.end);
+  const enc = encodeURIComponent(q);
+  const links = [
+    ['LEO', 'https://dict.leo.org/englisch-deutsch/' + enc],
+    ['dict.cc', 'https://www.dict.cc/?s=' + enc],
+    ['Cambridge (English)', 'https://dictionary.cambridge.org/dictionary/english/' + encodeURIComponent(q.toLowerCase().replace(/\s+/g, '-'))],
+    ['Wikipedia', 'https://en.wikipedia.org/w/index.php?search=' + enc]
+  ];
+  if (d.cat === 'name') links.unshift(links.pop());
+  return links.map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${n} ↗</a>`).join('');
+}
+const pasteBtn = k => `<button class="btn paste" data-paste="${k}">Paste</button>`;
+function renderSheet(){
+  const d = draft, isNew = !d.id;
+  const term = termText(d.start, d.end);
+  const hasAI = settings.provider !== 'none' && settings.apiKey;
+  const app = aiApp();
+  const isName = d.cat === 'name';
+  const more = isName || d.base || d.en || d.note;
+  const hint = d.copiedFrom && isNew
+    ? `You already looked this up in line ${d.copiedFrom} – the meaning was copied. Check that it fits here and tap Done to mark it here too.`
+    : isNew ? `Tap another word in the same sentence to mark a phrase (up to ${MAX_WORDS} words).` : '';
+  $('#sheet').innerHTML = `
+    <div class="sh-head">
+      <div class="grow"><div class="sh-term">${esc(term)}</div>
+      <div class="sh-meta">Line ${model.lineOf[d.start]}${d.teacher ? ' · from your teacher' : ''}</div></div>
+      <button class="icon-btn" data-act="dismiss" aria-label="Close">✕</button>
+    </div>
+    ${hint ? `<p class="hint">${hint}</p>` : ''}
+    <div class="seg" role="group" aria-label="Type">
+      ${Object.entries(CATS).map(([k, v]) => `<button data-cat="${k}" aria-pressed="${d.cat === k}"><span class="sw m-${k}"></span>${v}</button>`).join('')}
+    </div>
+    <div class="sec"><div class="sec-t">Look it up</div><div class="chips">${lookupLinks(d)}</div></div>
+    <div class="sec"><div class="sec-t">Ask an AI</div>
+      <div class="chips">
+        ${hasAI ? '<button class="btn primary" data-act="ai">Explain with AI</button>' : ''}
+        <button class="btn${hasAI ? '' : ' primary'}" data-act="copy">${app ? 'Copy question &amp; open ' + esc(app.name) : 'Copy AI question'}</button>
+      </div>
+      <div class="frow mt"><textarea id="f-paste" rows="1" placeholder="Paste the AI's answer here"></textarea>${pasteBtn('paste')}</div>
+    </div>
+    <div class="fields">
+      <div class="fld"><label for="f-de">${isName ? 'German (short)' : 'German'}</label>
+        <div class="frow"><input type="text" id="f-de" value="${esc(d.de)}" placeholder="${isName ? 'kurze Erklärung' : 'deutsche Bedeutung hier im Text'}">${pasteBtn('de')}</div></div>
+      <details${more ? ' open' : ''}><summary>${isName ? 'Background and note' : 'Dictionary form, English explanation, note'}</summary>
+        <div class="fields">
+          <div class="fld"><label for="f-base">${isName ? 'Name / term' : 'Dictionary form'}</label>
+            <div class="frow"><input type="text" id="f-base" value="${esc(d.base)}" placeholder="${isName ? esc(term) : 'e.g. take sth for granted (v.)'}">${pasteBtn('base')}</div></div>
+          <div class="fld"><label for="f-en">${isName ? 'Background' : 'English explanation'}</label>
+            <div class="frow"><textarea id="f-en" rows="2" placeholder="${isName ? 'Who or what is it? Why is it mentioned?' : 'definition or synonym'}">${esc(d.en)}</textarea>${pasteBtn('en')}</div></div>
+          <div class="fld"><label for="f-note">My note</label>
+            <textarea id="f-note" rows="1" placeholder="your own example, memory aid …">${esc(d.note)}</textarea></div>
+        </div>
+      </details>
+    </div>
+    <div class="sh-foot">
+      <button class="btn ghost danger" data-act="remove">${isNew ? 'Discard' : 'Remove mark'}</button>
+      <span class="grow"></span>
+      <button class="btn primary" data-act="save">Done</button>
+    </div>`;
+  const sh = $('#sheet');
+  sh.classList.add('open');
+  document.body.classList.add('sheet-open');
+}
+function closeSheet(){
+  draft = null;
+  $('#sheet').classList.remove('open');
+  document.body.classList.remove('sheet-open');
+  if (model) applyMarks();
+}
+const hasContent = d => [d.base, d.de, d.en, d.note].some(v => v && String(v).trim());
+function saveEntry(d){
+  const en = {
+    id: d.id || uid(), start: d.start, end: d.end, cat: d.cat,
+    term: termText(d.start, d.end), base: clean(d.base), de: clean(d.de), en: (d.en || '').trim(), note: (d.note || '').trim(),
+    context: contextOf(d.start), line: model.lineOf[d.start], teacher: !!d.teacher, created: d.created || Date.now()
+  };
+  const idx = cur.entries.findIndex(e => e.id === en.id);
+  if (idx >= 0) cur.entries[idx] = en; else cur.entries.push(en);
+  d.id = en.id; d.created = en.created;
+  saveTexts(); renderList();
+  return idx < 0;
+}
+// saves the open card when the student moves on – except an untouched copy of an earlier look-up
+function flush(){
+  if (draft && (draft.id || draft.edited || (hasContent(draft) && !draft.copiedFrom))) return saveEntry(draft);
+  return false;
+}
+function commit(){
+  const isNew = saveEntry(draft); closeSheet();
+  toast(isNew ? 'Saved to My words.' : 'Saved.');
+}
+function dismissSheet(){
+  const isNew = flush(); closeSheet();
+  if (isNew) toast('Saved to My words.');
+}
+function applyAnswer(txt){
+  if (!fillFromAnswer(txt)) return false;
+  draft.edited = true; saveEntry(draft); applyMarks(); renderSheet();
+  toast('Saved – check that it fits here.');
+  return true;
+}
+async function pasteInto(k){
+  let txt = '';
+  try { txt = await navigator.clipboard.readText(); } catch(e){}
+  if (!txt.trim()){
+    const f = $(k === 'paste' ? '#f-paste' : '#f-' + k); if (f) f.focus();
+    toast('Nothing to paste – copy something first, or long-press the field and choose “Paste”.');
+    return;
+  }
+  if (k === 'paste'){ applyAnswer(txt); return; }
+  const v = k === 'en' ? txt.trim() : clean(txt);
+  draft[k] = v; draft.edited = true; $('#f-' + k).value = v;
+}
+function buildPrompt(d){
+  const term = termText(d.start, d.end), ctx = contextOf(d.start);
+  if (d.cat === 'name') return `I am a German student in upper secondary school reading an English text. Explain who or what "${term}" is, as mentioned in this sentence:
+
+"${ctx}"
+
+Do not translate the sentence. Answer briefly in exactly this format:
+Base form: <the name or term>
+German: <very short explanation in German>
+English: <1–2 sentences of background in simple English that help to understand the text>`;
+  return `I am a German student in upper secondary school reading an English text. Explain the ${d.cat === 'phrase' ? 'expression' : 'word'} "${term}" as it is used in this sentence:
+
+"${ctx}"
+
+Do not translate the whole sentence. Answer briefly in exactly this format:
+Base form: <dictionary form, e.g. infinitive or "take sth for granted", with word class>
+German: <German equivalent(s) that fit this context>
+English: <a short explanation or synonym in simple English>`;
+}
+function parseAnswer(txt){
+  const out = {}; let key = null;
+  txt.split(/\r?\n/).forEach(l => {
+    const m = l.match(/^\s*[-*#>\s]*\**\s*(base form|dictionary form|german|deutsch|english|englisch)\s*\**\s*:\s*\**\s*(.*)$/i);
+    if (m){
+      const k = m[1].toLowerCase();
+      key = /^(base|dict)/.test(k) ? 'base' : /^(germ|deut)/.test(k) ? 'de' : 'en';
+      out[key] = m[2];
+    } else if (key && l.trim()) out[key] += ' ' + l.trim();
+  });
+  Object.keys(out).forEach(k => out[k] = out[k].replace(/\*\*|__/g, '').replace(/^["“]|["”]$/g, '').trim());
+  if (!Object.keys(out).length && txt.trim()) out.en = txt.trim();
+  return out;
+}
+function fillFromAnswer(txt){
+  const a = parseAnswer(txt);
+  ['base', 'de', 'en'].forEach(k => { if (a[k]){ draft[k] = a[k]; const f = $('#f-' + k); if (f) f.value = a[k]; } });
+  return Object.keys(a).length > 0;
+}
+async function askAI(prompt){
+  const p = settings.provider, key = settings.apiKey.trim(), m = settings.model.trim() || MODELS[p];
+  let r, j;
+  if (p === 'anthropic'){
+    r = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers: {
+      'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true'},
+      body: JSON.stringify({model: m, max_tokens: 400, messages: [{role: 'user', content: prompt}]})});
+    j = await r.json(); if (!r.ok) throw new Error(j.error && j.error.message || r.status);
+    return j.content.map(c => c.text || '').join('');
+  }
+  if (p === 'openai'){
+    r = await fetch('https://api.openai.com/v1/chat/completions', {method: 'POST', headers: {'content-type': 'application/json', 'authorization': 'Bearer ' + key},
+      body: JSON.stringify({model: m, messages: [{role: 'user', content: prompt}]})});
+    j = await r.json(); if (!r.ok) throw new Error(j.error && j.error.message || r.status);
+    return j.choices[0].message.content;
+  }
+  if (p === 'gemini'){
+    r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`, {method: 'POST',
+      headers: {'content-type': 'application/json', 'x-goog-api-key': key},
+      body: JSON.stringify({contents: [{parts: [{text: prompt}]}]})});
+    j = await r.json(); if (!r.ok) throw new Error(j.error && j.error.message || r.status);
+    return j.candidates[0].content.parts.map(x => x.text || '').join('');
+  }
+  throw new Error('No AI connection set up.');
+}
+$('#sheet').addEventListener('click', async ev => {
+  const cat = ev.target.closest('[data-cat]');
+  if (cat){ draft.cat = cat.dataset.cat; draft.catTouched = true; draft.edited = true; renderSheet(); applyMarks(); return; }
+  const p = ev.target.closest('[data-paste]');
+  if (p){ pasteInto(p.dataset.paste); return; }
+  const b = ev.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'dismiss') dismissSheet();
+  else if (act === 'save') commit();
+  else if (act === 'remove'){
+    if (cur.entries.some(e => e.id === draft.id)){
+      cur.entries = cur.entries.filter(e => e.id !== draft.id); saveTexts(); renderList(); toast('Mark removed.');
+    }
+    closeSheet();
+  }
+  else if (act === 'copy'){
+    const app = aiApp();
+    const copying = copyText(buildPrompt(draft));   // started before window.open so both count as part of the tap
+    if (app) window.open(app.url, '_blank', 'noopener');
+    toast(!(await copying) ? 'Copying is not possible in this browser.'
+      : app ? `Question copied – paste it in ${app.name}, then copy the answer and tap “Paste” here.`
+      : 'Question copied. Paste it into your AI app, then copy the answer and tap “Paste” here.');
+  }
+  else if (act === 'ai'){
+    const keep = draft; b.disabled = true; b.textContent = 'Asking…';
+    try {
+      const ans = await askAI(buildPrompt(keep));
+      if (draft === keep){ applyAnswer(ans); return; }
+    } catch(e){ toast('AI error: ' + e.message); }
+    b.disabled = false; b.textContent = 'Explain with AI';
+  }
+});
+$('#sheet').addEventListener('input', ev => {
+  const id = ev.target.id;
+  if (id === 'f-paste'){ if (ev.inputType === 'insertFromPaste') applyAnswer(ev.target.value); }
+  else if (id && id.startsWith('f-')){ draft[id.slice(2)] = ev.target.value; draft.edited = true; }
+});
+$('#sheet').addEventListener('change', ev => {
+  if (ev.target.id === 'f-paste' && ev.target.value.trim()) applyAnswer(ev.target.value);
+});
+$('#text').addEventListener('click', ev => {
+  const t = ev.target.closest('.t'); if (t) onTap(+t.dataset.i);
+});
+
+/* ---------------- word list ---------------- */
+function sortedEntries(){ return cur.entries.slice().sort((a, b) => a.start - b.start); }
+function renderList(){
+  const all = sortedEntries();
+  const list = filter === 'all' ? all : all.filter(e => e.cat === filter);
+  $('#count').textContent = all.length;
+  $$('#filters button').forEach(b => b.setAttribute('aria-pressed', b.dataset.filter === filter));
+  $('#wl').innerHTML = list.length ? list.map(e => `
+    <li><button class="wl-item" data-id="${e.id}">
+      <span class="dot m-${e.cat}"></span>
+      <span class="wl-main"><span class="wl-term">${esc(e.base || e.term)}</span>
+      ${e.de || e.en ? `<span class="wl-de">${esc(e.de || e.en)}</span>` : '<span class="wl-de">no explanation yet</span>'}</span>
+      <span class="wl-line">l. ${e.line}</span>
+    </button></li>`).join('')
+    : `<li class="wl-empty">${all.length ? 'Nothing in this category.' : 'Tap any word in the text to look it up. Everything you mark is collected here.'}</li>`;
+}
+$('#filters').addEventListener('click', ev => { const b = ev.target.closest('[data-filter]'); if (b){ filter = b.dataset.filter; renderList(); } });
+$('#wl').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-id]'); if (!b) return;
+  if (innerWidth < 1100) document.body.classList.remove('panel-open');
+  const en = cur.entries.find(e => e.id === b.dataset.id);
+  if (en){ tokEls[en.start].scrollIntoView({block: 'center', behavior: 'smooth'}); setTimeout(() => openEntry(en.id), 250); }
+});
+
+/* ---------------- export ---------------- */
+function exportEntries(){
+  const cats = $$('#dlg-export input[type=checkbox]').filter(c => c.checked).map(c => c.value);
+  return sortedEntries().filter(e => cats.includes(e.cat));
+}
+const front = e => e.base || e.term;
+const back = e => [e.de, e.en].filter(Boolean).join(' – ') || e.context;
+const flat = s => String(s || '').replace(/[\t\r\n]+/g, ' ').trim();
+function boldTerm(ctx, term){
+  const i = ctx.indexOf(term);
+  return i < 0 ? [ctx, '', ''] : [ctx.slice(0, i), term, ctx.slice(i + term.length)];
+}
+function quizletText(list){ return list.map(e => flat(front(e)) + '\t' + flat(back(e))).join('\n'); }
+function ankiCSV(list){
+  const q = s => '"' + String(s || '').replace(/"/g, '""') + '"';
+  const rows = list.map(e => {
+    const [a, b, c] = boldTerm(e.context, e.term);
+    const backHtml = [esc(e.de), e.en ? '<i>' + esc(e.en) + '</i>' : '', e.note ? '<small>' + esc(e.note) + '</small>' : ''].filter(Boolean).join('<br>');
+    return [esc(front(e)), backHtml, esc(a) + (b ? '<b>' + esc(b) + '</b>' : '') + esc(c), 'l. ' + e.line + ' – ' + esc(cur.title), CATS[e.cat]].map(q).join(',');
+  });
+  return '﻿#separator:Comma\n#html:true\n#columns:Front,Back,Context,Source,Type\n' + rows.join('\n') + '\n';
+}
+async function exportDocx(list){
+  await loadScript(JSZIP);
+  const run = (t, o = {}) => `<w:r><w:rPr>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.color ? `<w:color w:val="${o.color}"/>` : ''}<w:sz w:val="${o.sz || 20}"/></w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
+  const para = (runs, after = 40) => `<w:p><w:pPr><w:spacing w:before="0" w:after="${after}"/></w:pPr>${runs}</w:p>`;
+  const cell = (content, w, shade) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${shade ? '<w:shd w:val="clear" w:color="auto" w:fill="E8EEF5"/>' : ''}</w:tcPr>${content}</w:tc>`;
+  const W = [650, 2150, 2150, 2550, 2138];
+  const head = ['Line', 'Expression', 'German', 'English explanation', 'Context'];
+  const bd = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(s => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="BBBBBB"/>`).join('');
+  let rows = `<w:tr><w:trPr><w:tblHeader/></w:trPr>${head.map((h, i) => cell(para(run(h, {b: true, sz: 19}), 0), W[i], true)).join('')}</w:tr>`;
+  list.forEach(e => {
+    const [a, b, c] = boldTerm(e.context, e.term);
+    const expr = para(run(front(e), {b: true})) + (e.base && e.base.toLowerCase() !== e.term.toLowerCase() ? para(run('in the text: ' + e.term, {sz: 17, color: '666666'}), 0) : '');
+    const engl = para(run(e.en)) + (e.note ? para(run('Note: ' + e.note, {i: true, sz: 17, color: '555555'}), 0) : '');
+    rows += `<w:tr><w:trPr><w:cantSplit/></w:trPr>${[
+      cell(para(run(String(e.line), {sz: 18, color: '666666'}), 0), W[0]),
+      cell(expr, W[1]), cell(para(run(e.de), 0), W[2]), cell(engl, W[3]),
+      cell(para(run(a, {sz: 17}) + (b ? run(b, {sz: 17, b: true}) : '') + run(c, {sz: 17}), 0), W[4])
+    ].join('')}</w:tr>`;
+  });
+  const body = para(run(cur.title, {b: true, sz: 32}), 60)
+    + para(run([cur.source, 'Vocabulary list · ' + fmtDate(Date.now())].filter(Boolean).join(' · '), {sz: 19, color: '666666'}), 200)
+    + `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders>${bd}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="60" w:type="dxa"/><w:left w:w="90" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="90" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${W.map(w => `<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>${rows}</w:tbl>`
+    + para('', 0)
+    + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr>';
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  zip.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}</w:body></w:document>`);
+  const blob = await zip.generateAsync({type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  download(slug(cur.title) + '-vocabulary.docx', blob);
+}
+function listTableHTML(list, numbered){
+  return `<table><thead><tr>${numbered ? '<th>#</th>' : ''}<th>Line</th><th>Expression</th><th>German</th><th>English explanation</th><th>Context</th></tr></thead><tbody>${
+    list.map((e, k) => {
+      const [a, b, c] = boldTerm(e.context, e.term);
+      return `<tr>${numbered ? `<td>${k + 1}</td>` : ''}<td>${e.line}</td><td><b>${esc(front(e))}</b>${e.base && e.base.toLowerCase() !== e.term.toLowerCase() ? `<br><small>in the text: ${esc(e.term)}</small>` : ''}</td><td>${esc(e.de)}</td><td>${esc(e.en)}${e.note ? `<br><i><small>Note: ${esc(e.note)}</small></i>` : ''}</td><td>${esc(a)}<b>${esc(b)}</b>${esc(c)}</td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+function printView(html){
+  $('#print').innerHTML = html;
+  $('#dlg-export').close();
+  setTimeout(() => window.print(), 100);
+}
+function printList(list){
+  printView(`<h1>${esc(cur.title)}</h1><div class="p-src">${esc([cur.source, 'Vocabulary list · ' + fmtDate(Date.now())].filter(Boolean).join(' · '))}</div>${listTableHTML(list, false)}`);
+}
+function printAnnotated(list){
+  const num = {}; list.forEach((e, k) => num[e.end] = {n: k + 1, e});
+  const inList = new Map(); list.forEach(e => { for (let i = e.start; i <= e.end; i++) inList.set(i, e); });
+  let h = `<h1>${esc(cur.title)}</h1><div class="p-src">${esc(cur.source || '')}</div>`;
+  model.paras.forEach(lines => {
+    h += '<div class="p-para">';
+    lines.forEach(l => {
+      const n = model.lineOf[l[0]];
+      h += `<div class="p-line"><span class="p-ln">${n % 5 === 0 ? n : ''}</span><span>`;
+      l.forEach((i, k) => {
+        const e = inList.get(i);
+        if (k){ const prev = inList.get(i - 1); h += prev && e === prev ? `<span class="mk m-${e.cat}"> </span>` : ' '; }
+        h += e ? `<span class="mk m-${e.cat}">${esc(model.tokens[i])}</span>` : esc(model.tokens[i]);
+        if (num[i]) h += `<sup>${num[i].n}</sup>`;
+      });
+      h += '</span></div>';
+    });
+    h += '</div>';
+  });
+  if (list.length) h += `<h2>Glossary</h2>${listTableHTML(list, true)}`;
+  printView(h);
+}
+$('#dlg-export').addEventListener('click', async ev => {
+  const b = ev.target.closest('[data-exp]'); if (!b) return;
+  const list = exportEntries();
+  if (!list.length && b.dataset.exp !== 'print-text'){ toast('Nothing to export – mark some words first.'); return; }
+  const name = slug(cur.title);
+  try {
+    switch (b.dataset.exp){
+      case 'quizlet-copy': toast(await copyText(quizletText(list)) ? `Copied ${list.length} cards. In Quizlet choose “Import” and paste.` : 'Copying failed – use the file instead.'); break;
+      case 'quizlet': download(name + '-quizlet.txt', quizletText(list), 'text/plain;charset=utf-8'); break;
+      case 'anki': download(name + '-anki.csv', ankiCSV(list), 'text/csv;charset=utf-8'); break;
+      case 'docx': await exportDocx(list); break;
+      case 'print-list': printList(list); break;
+      case 'print-text': printAnnotated(list); break;
+    }
+  } catch(e){ toast(e.message); }
+});
+
+/* ---------------- packages & backup ---------------- */
+let shareId = null;
+function sharePackage(id, withEntries){
+  const t = texts.find(x => x.id === id); if (!t) return;
+  const pkg = {type: 'reading-companion-text', version: 1, title: t.title, source: t.source, paragraphs: t.paragraphs,
+    entries: withEntries ? t.entries.map(e => Object.assign({}, e, {teacher: true})) : []};
+  download(slug(t.title) + '.json', JSON.stringify(pkg), 'application/json');
+}
+function backup(){
+  download('reading-companion-backup-' + new Date().toISOString().slice(0, 10) + '.json',
+    JSON.stringify({type: 'reading-companion-backup', version: 1, texts}), 'application/json');
+}
+async function importFile(file){
+  if (isPdf(file)){ $('#dlg-settings').open && $('#dlg-settings').close(); loadPdf(file); return; }
+  let data;
+  try { data = JSON.parse(await file.text()); } catch(e){ toast('This file cannot be opened here.'); return; }
+  if (data && data.type === 'reading-companion-text' && Array.isArray(data.paragraphs)){
+    const entries = (data.entries || []).map(e => Object.assign({}, e, {id: uid()}));
+    const t = addText(data.title, data.source, data.paragraphs, entries);
+    $('#dlg-settings').open && $('#dlg-settings').close();
+    toast('Text added.'); openText(t.id);
+  } else if (data && data.type === 'reading-companion-backup' && Array.isArray(data.texts)){
+    if (!confirm(`Restore ${data.texts.length} text(s) from this backup? Texts that already exist on this device will be replaced by the backup version.`)) return;
+    data.texts.forEach(t => { const i = texts.findIndex(x => x.id === t.id); if (i >= 0) texts[i] = t; else texts.push(t); });
+    saveTexts(); renderLibrary(); toast('Backup restored.');
+    if (cur) openText(cur.id);
+  } else toast('This file cannot be opened here.');
+}
+$('#file-import').addEventListener('change', ev => { const f = ev.target.files[0]; if (f) importFile(f); ev.target.value = ''; });
+
+/* ---------------- PDF ---------------- */
+let pdfReady = null;
+function pdfLib(){
+  // the worker is loaded as a same-origin blob: cross-origin workers fail in many browsers and from file://
+  return pdfReady || (pdfReady = (async () => {
+    await loadScript(PDFJS);
+    try {
+      const src = await (await fetch(PDFJS_WORKER)).text();
+      pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([src], {type: 'text/javascript'}));
+    } catch(e){ pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }
+    return pdfjsLib;
+  })().catch(e => { pdfReady = null; throw e; }));
+}
+const isPdf = f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+async function pdfToText(file){
+  await pdfLib();
+  const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+  const paras = []; let curP = null;
+  for (let p = 1; p <= pdf.numPages; p++){
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    const lines = []; let ln = null;
+    for (const it of tc.items){
+      if (!('str' in it)) continue;
+      const x = it.transform[4], y = it.transform[5], h = Math.abs(it.transform[3]) || it.height || 10;
+      if (!ln || Math.abs(ln.y - y) > h * 0.5){ if (ln) lines.push(ln); ln = {y, h, x, parts: [], endX: null}; }
+      if (!it.str) continue;
+      if (ln.endX !== null && x - ln.endX > h * 0.15) ln.parts.push(' ');
+      ln.parts.push(it.str); ln.endX = x + (it.width || 0);
+      if (it.hasEOL){ lines.push(ln); ln = null; }
+    }
+    if (ln) lines.push(ln);
+    const L = lines.map(l => {
+      // margin line numbers of the original arrive as separate items at the start or end of a line
+      const idx = l.parts.map((s, k) => s.trim() ? k : -1).filter(k => k >= 0);
+      if (idx.length > 1 && /^\d{1,3}$/.test(l.parts[idx[0]].trim())) l.parts[idx[0]] = '';
+      if (idx.length > 1 && /^\d{1,3}$/.test(l.parts[idx[idx.length - 1]].trim())) l.parts[idx[idx.length - 1]] = '';
+      return Object.assign(l, {s: l.parts.join('').replace(/\s+/g, ' ').trim()});
+    }).filter(l => l.s && !/^\d{1,4}$/.test(l.s));
+    const gaps = []; for (let i = 1; i < L.length; i++){ const g = L[i - 1].y - L[i].y; if (g > 0) gaps.push(g); }
+    gaps.sort((a, b) => a - b);
+    const med = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 14;
+    const xs = L.map(l => l.x).sort((a, b) => a - b); const xMed = xs.length ? xs[Math.floor(xs.length / 2)] : 0;
+    L.forEach((l, i) => {
+      let brk = !curP;
+      if (!brk && i > 0){
+        const g = L[i - 1].y - l.y;
+        brk = g > med * 1.45 || (l.x - xMed > l.h * 0.8 && /[.!?:"”’]$/.test(curP));
+      } else if (!brk && i === 0) brk = /[.!?"”’]$/.test(curP);
+      if (brk){ if (curP) paras.push(curP); curP = l.s; }
+      else if (/[\p{L}]-$/u.test(curP) && /^\p{Ll}/u.test(l.s)) curP = curP.slice(0, -1) + l.s;
+      else curP += ' ' + l.s;
+    });
+  }
+  if (curP) paras.push(curP);
+  return paras.join('\n\n');
+}
+function openNewDialog(){
+  $('#n-title').value = ''; $('#n-src').value = ''; $('#n-text').value = ''; $('#n-pdf-status').textContent = '';
+  if (!$('#dlg-new').open) $('#dlg-new').showModal();
+}
+async function loadPdf(f){
+  if (!$('#dlg-new').open) openNewDialog();
+  const st = $('#n-pdf-status'); st.textContent = 'Reading PDF…';
+  try {
+    const txt = await pdfToText(f);
+    if (!txt.trim()){ st.textContent = 'No text found – is this a scanned PDF? Only PDFs with real text work.'; return; }
+    $('#n-text').value = txt;
+    if (!$('#n-title').value) $('#n-title').value = f.name.replace(/\.pdf$/i, '');
+    st.textContent = 'Text loaded – please check it below.';
+  } catch(e){ st.textContent = 'Could not read this PDF. ' + e.message; }
+}
+$('#file-pdf').addEventListener('change', ev => { const f = ev.target.files[0]; ev.target.value = ''; if (f) loadPdf(f); });
+document.addEventListener('dragover', ev => ev.preventDefault());
+document.addEventListener('drop', ev => {
+  ev.preventDefault();
+  const f = ev.dataTransfer && ev.dataTransfer.files[0]; if (!f) return;
+  if (isPdf(f)) loadPdf(f); else importFile(f);
+});
+
+/* ---------------- settings ---------------- */
+function applySettings(){
+  const r = document.documentElement;
+  r.style.setProperty('--fs', settings.fontSize + 'px');
+  r.style.setProperty('--lh', settings.lineHeight);
+  if (settings.theme === 'auto') r.removeAttribute('data-theme'); else r.dataset.theme = settings.theme;
+}
+function fillSettings(){
+  $('#s-fs').value = settings.fontSize; $('#s-lh').value = settings.lineHeight;
+  $$('#s-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === settings.theme));
+  $('#s-provider').value = settings.provider; $('#s-key').value = settings.apiKey; $('#s-model').value = settings.model;
+  $('#s-model').placeholder = MODELS[settings.provider] || '';
+  $$('.ai-only').forEach(e => e.style.display = settings.provider === 'none' ? 'none' : '');
+  $('#s-app').value = settings.aiApp; $('#s-url').value = settings.aiUrl;
+  $('#s-url-wrap').style.display = settings.aiApp === 'custom' ? '' : 'none';
+}
+$('#s-app').addEventListener('change', e => { settings.aiApp = e.target.value; saveSettings(); fillSettings(); });
+$('#s-url').addEventListener('input', e => { settings.aiUrl = e.target.value.trim(); saveSettings(); });
+$('#s-fs').addEventListener('input', e => { settings.fontSize = +e.target.value; applySettings(); saveSettings(); });
+$('#s-lh').addEventListener('input', e => { settings.lineHeight = +e.target.value; applySettings(); saveSettings(); });
+$('#s-theme').addEventListener('click', e => { const b = e.target.closest('[data-theme]'); if (!b) return; settings.theme = b.dataset.theme; applySettings(); saveSettings(); fillSettings(); });
+$('#s-provider').addEventListener('change', e => { settings.provider = e.target.value; settings.model = ''; saveSettings(); fillSettings(); });
+$('#s-key').addEventListener('input', e => { settings.apiKey = e.target.value.trim(); saveSettings(); });
+$('#s-model').addEventListener('input', e => { settings.model = e.target.value.trim(); saveSettings(); });
+$('#dlg-settings').addEventListener('close', () => { if (draft) renderSheet(); });
+
+/* ---------------- sample ---------------- */
+const SAMPLE = {
+  title: 'The Bookshop That Refused to Close', source: 'Sample text',
+  paragraphs: [
+    "When Eleanor Hughes inherited her grandfather's bookshop in Bristol, most of her friends took it for granted that she would sell it within a year. The shop was cramped, the roof leaked whenever it rained, and the takings barely covered the bills.",
+    "Yet Eleanor was reluctant to give up on a place that had shaped her childhood. She remembered rainy afternoons spent curled up behind the counter, devouring paperbacks while her grandfather haggled with collectors over first editions of Dickens.",
+    "Instead of throwing in the towel, she turned the back room into a reading café and invited local authors to hold workshops. Within months, the shop had become a hub for the neighbourhood – a place where teenagers, pensioners and newcomers to the city rubbed shoulders over coffee.",
+    "“People keep telling me that books are a dying trade,” she says with a wry smile. “But nobody here seems to have got the memo.”"
+  ]
+};
+
+/* ---------------- global actions ---------------- */
+document.addEventListener('click', ev => {
+  const closer = ev.target.closest('[data-close]');
+  if (closer){ closer.closest('dialog').close(); return; }
+  const b = ev.target.closest('[data-act]'); if (!b || b.closest('#sheet')) return;
+  const card = b.closest('.tcard'), id = card && card.dataset.id;
+  switch (b.dataset.act){
+    case 'new': openNewDialog(); break;
+    case 'pdf': $('#file-pdf').click(); break;
+    case 'create': {
+      const paras = toParagraphs($('#n-text').value);
+      if (!paras.length){ toast('Please paste a text first.'); return; }
+      const t = addText($('#n-title').value.trim(), $('#n-src').value.trim(), paras);
+      $('#dlg-new').close(); openText(t.id); break;
+    }
+    case 'sample': openText(addText(SAMPLE.title, SAMPLE.source, SAMPLE.paragraphs).id); break;
+    case 'import': $('#file-import').click(); break;
+    case 'open': openText(id); break;
+    case 'delete': {
+      const t = texts.find(x => x.id === id);
+      if (t && confirm(`Delete “${t.title}” and all ${t.entries.length} marked words? This cannot be undone.`)){
+        texts = texts.filter(x => x.id !== id); saveTexts(); renderLibrary();
+      }
+      break;
+    }
+    case 'share': shareId = id; $('#sh-entries').checked = false; $('#dlg-share').showModal(); break;
+    case 'share-go': sharePackage(shareId, $('#sh-entries').checked); $('#dlg-share').close(); break;
+    case 'settings': fillSettings(); $('#dlg-settings').showModal(); break;
+    case 'backup': backup(); break;
+    case 'tip-close': $('#ios-tip').hidden = true; store.set('rc.tipDone', true); break;
+    case 'library': showLibrary(); break;
+    case 'panel': document.body.classList.toggle('panel-open'); break;
+    case 'panel-close': document.body.classList.remove('panel-open'); break;
+    case 'export': {
+      $('#e-sub').textContent = `${cur.entries.length} expression(s) from “${cur.title}”`;
+      $('#dlg-export').showModal(); break;
+    }
+  }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && !document.querySelector('dialog[open]')){
+    if (draft) dismissSheet(); else document.body.classList.remove('panel-open');
+  }
+});
+
+/* ---------------- init ---------------- */
+applySettings();
+renderLibrary();
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (isIOS && !navigator.standalone && !store.get('rc.tipDone', false)) $('#ios-tip').hidden = false;
+const last = store.get('rc.last', null);
+if (last && texts.some(t => t.id === last)) openText(last);
+</script>
+</body>
+</html>
